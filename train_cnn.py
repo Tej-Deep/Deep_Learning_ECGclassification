@@ -23,7 +23,7 @@ model = CNN().to(device)
 print(model)
 summary(model, input_size=(batch_size, 12, 1000))
 
-lr = 0.005
+lr = 0.007
 
 train_accs, valid_accs, test_acc = trainer(model, train_loader, test_loader, valid_loader, lr = lr)
 
