@@ -6,7 +6,7 @@ class PTBDataset(Dataset):
     def __init__(self, X, df, Y, embed_path='./data/embeddings/'):
         self.labels = Y
         self.data = X
-        self.id = df.index.to_list()
+        # self.id = df.index.to_list()
         self.notes = df.report.to_list()
         self.embed_path = embed_path
 

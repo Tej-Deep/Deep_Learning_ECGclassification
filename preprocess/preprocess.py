@@ -97,11 +97,24 @@ if __name__=="__main__":
     # Example
     path = './data/ptb-xl-a-large-publicly-available-electrocardiography-dataset-1.0.3/'
     batch_size = 265
-        
+    print("Start loading")    
     data, raw_labels = load_dataset(path)
-
+    print("done loading")    
     labels = compute_label_agg(raw_labels, path)
 
     data, labels, Y = select_data(data, labels)
 
     train_loader, valid_loader, test_loader = get_data_loaders(data, labels, Y, batch_size)
+
+
+    # for batch_number, batch in enumerate(train_loader):
+    #     inputs, outputs, text = batch
+    #     print("---")
+    #     print("Batch number: ", batch_number)
+    #     print(inputs)
+    #     print(outputs)
+    #     # print(text)
+    #     print(inputs.shape)
+    #     print(outputs.shape)
+    #     # print(text.shape)
+    #     break   
