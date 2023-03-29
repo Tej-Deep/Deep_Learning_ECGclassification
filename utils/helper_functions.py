@@ -9,8 +9,8 @@ def define_optimizer(model, lr, alpha):
 def tuple_of_tensors_to_tensor(tuple_of_tensors):
     return  torch.stack(list(tuple_of_tensors), dim=0)
 
-def predict(model, inputs, device):
-    outputs = model.forward(inputs)
+def predict(model, inputs, notes, device):
+    outputs = model.forward(inputs, notes)
     predicted = torch.sigmoid(outputs)
     predicted = (predicted>0.5).float() 
     return outputs, predicted
@@ -32,11 +32,11 @@ def eval_valid(model, valid_loader, epoch, num_epochs, device):
             # Get images and labels from test loader
             inputs = inputs.transpose(1,2).float().to(device)
             labels = labels.float().to(device)
-            # notes = tuple_of_tensors_to_tensor(notes).to(device)
+            notes = notes.to(device)
 
             # Forward pass and predict class using max
             # outputs = model(inputs)
-            _, predicted = predict(model, inputs, device) #torch.max(outputs.data, 1)
+            _, predicted = predict(model, inputs, notes, device) #torch.max(outputs.data, 1)
 
             # Check if predicted class matches label and count numbler of correct predictions
             total += labels.size(0)
@@ -58,11 +58,11 @@ def eval_test(model, test_loader, device):
             # Get images and labels from test loader
             inputs = inputs.transpose(1,2).float().to(device)
             labels = labels.float().to(device)
-            # notes = tuple_of_tensors_to_tensor(notes).to(device)
+            notes = notes.to(device)
 
             # Forward pass and predict class using max
             # outputs = model(inputs)
-            _, predicted = predict(model, inputs, device)#torch.max(outputs.data, 1)
+            _, predicted = predict(model, inputs, notes, device)#torch.max(outputs.data, 1)
 
             # Check if predicted class matches label and count numbler of correct predictions
             total += labels.size(0)

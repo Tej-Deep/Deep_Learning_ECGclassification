@@ -1,6 +1,6 @@
 import torch
 from preprocess.preprocess import load_dataset, compute_label_agg, select_data, get_data_loaders
-from models.CNN import CNN
+from models.CNN import CNN, MMCNN_SUM, MMCNN_CAT
 from utils.trainer import trainer
 from torchinfo import summary
 
@@ -18,13 +18,19 @@ labels = compute_label_agg(raw_labels, path)
 data, labels, Y = select_data(data, labels)
 
 train_loader, valid_loader, test_loader = get_data_loaders(data, labels, Y, batch_size)
+models = [MMCNN_CAT, CNN, MMCNN_SUM]
+test_accuracies = {"CNN":0,"MMCNN_SUM":0, "MMCNN_CAT":0}
 
-model = CNN().to(device)
-print(model)
-summary(model, input_size=(batch_size, 12, 1000))
+for model_class in models:
+    model = model_class().to(device)
+    print(model)
+    # summary(model, input_size=(batch_size, 12, 1000))
 
-lr = 0.007
+    lr = 0.0001
+    epochs = 20
 
-train_accs, valid_accs, test_acc = trainer(model, train_loader, test_loader, valid_loader, lr = lr)
+    train_accs, valid_accs, test_acc = trainer(model, train_loader, test_loader, valid_loader, lr = lr, num_epochs = epochs)
+    test_accuracies[model.name] = test_acc
+    torch.save(model.state_dict(), f'./ckpt/{model.name}_epoch_{epochs}_lr_{lr}_test_acc_{test_acc:.4f}.pt')
 
-torch.save(model.state_dict(), f'./ckpt/CNN_lr_{lr}_test_acc_{test_acc:.4f}.pt')
+print(test_accuracies)

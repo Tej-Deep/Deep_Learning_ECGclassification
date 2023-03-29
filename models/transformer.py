@@ -24,7 +24,7 @@ class pre_conv(nn.Module):
         src[src < 0] = 0
         src[src > 249] = 249
         src = src.float().unsqueeze(3)
-        print(src.shape)
+        # print(src.shape)
         src = self.conven(src)
         src = torch.squeeze(src,2)
         return src
@@ -45,11 +45,17 @@ class PositionalEncoding(nn.Module):
         pe[:, 0::2] = torch.sin(position * div_term)
         pe[:, 1::2] = torch.cos(position * div_term)
         pe = pe.unsqueeze(0)
-        self.pe = pe
+        self.pe = pe.cuda()
 
     def forward(self, x):
         x *= math.sqrt(self.d_model)
-        x +=  self.pe[:,:x.size(1)].cuda()
+        x = x.squeeze(3)
+        x = x.squeeze(1)
+        y = self.pe[:,:,:x.size(2)]
+        # print(y.shape)
+        # print(x.shape)
+        # input(":")
+        x +=  y.squeeze()
         return self.dropout(x)
 
 class Classifier_CNN(nn.Module):
@@ -64,13 +70,15 @@ class Classifier_CNN(nn.Module):
         self.fc1 = nn.Linear(377, 128)
         self.fc2 = nn.Linear(128, 16)
         self.fc3 = nn.Linear(16,5)
+        self.activation = torch.nn.ReLU()
     def forward(self, x):
-        x = self.pool(F.relu(self.conv1(x)))
-        x = self.pool(F.relu(self.conv2(x)))
-        x = self.pool(F.relu(self.conv3(x)))
+        # print(x.shape)
+        x = self.pool(self.activation(self.conv1(x)))
+        x = self.pool(self.activation(self.conv2(x)))
+        x = self.pool(self.activation(self.conv3(x)))
         x = x.view(x.size(0),-1)
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
+        x = self.activation(self.fc1(x))
+        x = self.activation(self.fc2(x))
         x = self.fc3(x)
         x = x.squeeze(1) # Flatten to [batch_size]
         return x
@@ -78,6 +86,7 @@ class Classifier_CNN(nn.Module):
 class MVMNet_Transformer(nn.Module):
     def __init__(self,  vocab_size, d_model, num_layers, heads) -> None:
         super().__init__()
+        self.name = "p_transformer"
         self.pre_CNN= pre_conv()
         self.pe = PositionalEncoding(d_model)
         self.embed = Embedder(vocab_size, d_model)
@@ -85,15 +94,20 @@ class MVMNet_Transformer(nn.Module):
         self.clasifier = Classifier_CNN()
         self.transform_cnn = torchvision.transforms.Resize((250,120))
         self.norm = nn.LayerNorm((1,250,120))
-    def forward(self, x, tgt=torch.rand((250,120))):
+    def forward(self, x, tgt=None):
+        if tgt == None:
+            tgt = torch.rand((x.size(0),250,120)).cuda()
         x = ((x + 1.68)*100).long()
         out = self.pe(self.embed(self.pre_CNN(x)))
 
         out = self.transformer(src=out, tgt=tgt)
         out = torch.squeeze(out,0)
+        # print(out.shape)
 
         x = self.transform_cnn(x.float())
-        
-        out = self.clasifier(self.norm(out+x))
+        x = out + x
+        x = self.norm(x.unsqueeze(1))
+        # print(x.shape)
+        out = self.clasifier(x)
         return out
 

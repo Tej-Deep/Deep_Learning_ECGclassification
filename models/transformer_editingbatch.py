@@ -77,7 +77,10 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, x):
         x *= math.sqrt(self.d_model)
-        x +=  self.pe[:,:x.size(1)].cuda()
+        print(self.pe.shape, x.shape)
+        y = self.pe.expand(x.size(0), self.pe.size(1), self.pe.size(2))[:,:,:x.size(-1)].cuda()
+        # print(y.unsqueeze(1).shape)
+        x +=  y.unsqueeze(1)
         return self.dropout(x)
 
 class MultiHeadAttention(nn.Module):
@@ -190,12 +193,20 @@ class EncoderBlock(nn.Module):
           src[src < 0] = 0
           src[src > 249] = 249
 
-          src = torch.reshape(src,(src.shape[0],250,12))
-          src = torch.transpose(src,0,2)
-
+        #   src = torch.reshape(src,(src.shape[0],250,12))
+          src = torch.reshape(src, (src.shape[0],src.shape[1],src.shape[2], 1))
+          print(src.shape)
+        #   src = torch.transpose(src,0,2)
+        #   print(src.shape)
+          src.unsqueeze(-1)
+          print(src.shape)
+        #   input(":")
           src = self.conven(src.float())
-          src = torch.squeeze(src,2)
-          
+          print(src.shape)
+
+          src = torch.squeeze(src,3)
+          print(src.shape)
+        #   input(":")
           e_outputs = self.encoder(src.long())
           return e_outputs # 1x250x120
 class DecoderLayer(nn.Module):
@@ -278,6 +289,7 @@ class Transformer(nn.Module):
         self.norm = nn.LayerNorm((1,250,120))
 
     def forward(self, src, txt=None):
+        print(src.shape)
         src = ((src + 1.68)*100).long() #scale
         
         e_outputs = self.encoderBlock(src.cuda()) #encoder
