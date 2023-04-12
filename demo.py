@@ -6,14 +6,39 @@ import tempfile
 import torch
 from models.CNN import CNN, MMCNN_CAT
 from utils.helper_functions import predict
+
+from transformers import AutoTokenizer, AutoModel
+from langdetect import detect
+
+# Define clinical models and tokenizers
+en_clin_bert = 'emilyalsentzer/Bio_ClinicalBERT'
+ger_clin_bert = 'smanjil/German-MedBERT'
+
+en_tokenizer = AutoTokenizer.from_pretrained(en_clin_bert)
+en_model = AutoModel.from_pretrained(en_clin_bert)
+
+g_tokenizer = AutoTokenizer.from_pretrained(ger_clin_bert)
+g_model = AutoModel.from_pretrained(ger_clin_bert)
+
 # from preprocess.preprocess import 
 def preprocess(data_file_path):
     data = [wfdb.rdsamp(data_file_path)]
     data = np.array([signal for signal, meta in data])
     return data
+
 def embed(notes):
-    #TODO: include embeddings
-    return torch.load(f'{"./data/embeddings/"}1.pt')
+    if detect(notes) == 'en':
+        tokens = en_tokenizer(notes, return_tensors='pt')
+        outputs = en_model(**tokens)
+    else:
+        tokens = g_tokenizer(notes, return_tensors='pt')
+        outputs = g_model(**tokens)
+    
+    embeddings = outputs.last_hidden_state
+    embedding = torch.mean(embeddings, dim=1).squeeze(0)
+    
+    return embedding 
+    # return torch.load(f'{"./data/embeddings/"}1.pt')
 
 def infer(data, notes):
     embed_notes = embed(notes).unsqueeze(0)
