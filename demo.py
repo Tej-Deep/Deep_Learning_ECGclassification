@@ -53,7 +53,7 @@ def infer(data, notes):
     outputs, predicted = predict(model, data, embed_notes, device='cpu')
     outputs = torch.sigmoid(outputs)[0]
     print(outputs)
-    #TODO: What is the ordering of the classes
+    #TODO: What is the ordering of the classes ['CD' 'HYP' 'MI' 'NORM' 'STTC']
     return {'NORM':round(outputs[0].item(),2), 'MI':round(outputs[1].item(),2), 'STTC':round(outputs[2].item(),2), 'CD':round(outputs[3].item(),2), 'HYP':round(outputs[4].item(),2)}
 
 def run(header_file, data_file, notes):

@@ -59,11 +59,15 @@ def select_data(XX, YY, min_samples:int=0):
     YY['superdiagnostic_len'] = YY.superdiagnostic.apply(lambda x: len(x))
     X = XX[YY.superdiagnostic_len > 0]
     Y = YY[YY.superdiagnostic_len > 0]
-    mlb.fit(Y.superdiagnostic.values)
-    y = mlb.transform(Y.superdiagnostic.values)
+    y = mlb.fit_transform(Y.superdiagnostic.values)
     
     return X, Y, y
-        
+
+def sample_class(data, labels, Y, cls='HYP'):
+    mask = labels['superdiagnostic'].apply(lambda x: cls in x)
+   
+    return data[mask], labels[mask], Y[mask]
+
 def get_data_loaders(data, labels, Y, batch_size:int, ratio: list[float]=[0.8,0.1,0.1]):
     """
     Get train, validation and test DataLoaders
