@@ -15,3 +15,16 @@ class PTBDataset(Dataset):
 
     def __len__(self):
         return len(self.labels)
+
+class AugmentedDataset(Dataset):
+    def __init__(self, X, Y, notes) -> None:
+        super().__init__()
+        self.X = X
+        self.Y = Y
+        self.notes = notes
+    
+    def __getitem__(self, index):
+        return self.X[index], self.Y[index], self.notes[index]
+
+    def __len__(self):
+        return len(self.Y)
