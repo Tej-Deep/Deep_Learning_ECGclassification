@@ -30,7 +30,7 @@ def save_metrics(train_loss_list, valid_loss_list, global_steps_list, path='metr
 
 
 def plot_losses(metrics_save_name='metrics', save_dir='./'):
-    path = f'{save_dir}{metrics_save_name}.pt'
+    path = f'{save_dir}metrics_{metrics_save_name}.pt'
     state = torch.load(path)
 
     train_loss_list = state['train_loss_list']
@@ -74,6 +74,7 @@ def train_RNN(epochs, train_loader, valid_loader, model, loss_fn, optimizer, eva
 
             images = torch.tensor(images).float().to(device)
             labels = labels.to(device)
+            notes = notes.to(device)
 
             output = model(images, notes)
 
@@ -108,6 +109,7 @@ def train_RNN(epochs, train_loader, valid_loader, model, loss_fn, optimizer, eva
 
                         images = torch.tensor(images).float().to(device)
                         labels = labels.to(device)
+                        notes = notes.to(device)
                         output = model(images, notes)
 
                         loss = loss_fn(output, labels.float()).item()
@@ -163,6 +165,7 @@ def evaluate_RNN(model, test_loader, device="cuda"):
 
             images = torch.tensor(images).float().to(device)
             labels = labels.to(device)
+            notes = notes.to(device)
             output = model(images, notes)
 
             values, indices = torch.max(output, dim=1)
