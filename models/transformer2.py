@@ -89,7 +89,7 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         self.heads = heads
         self.d_model = d_model
-        print(d_model, self.heads)
+        # print(d_model, self.heads)
         assert d_model % self.heads == 0
 
         self.d_h = self.d_model // self.heads

@@ -11,7 +11,7 @@ class PTBDataset(Dataset):
         self.embed_path = embed_path
 
     def __getitem__(self, i):
-        return self.data[i][:250] , self.labels[i], torch.load(f'{self.embed_path}{self.id[i]}.pt')
+        return self.data[i] , self.labels[i], torch.load(f'{self.embed_path}{self.id[i]}.pt')
 
     def __len__(self):
         return len(self.labels)

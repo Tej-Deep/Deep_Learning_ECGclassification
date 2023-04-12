@@ -19,8 +19,8 @@ def display_train(epoch, num_epochs, i, model, correct, total, loss, train_loade
     print (f'Epoch [{epoch+1}/{num_epochs}], Step [{i+1}/{len(train_loader)}], Train Loss: {loss.item():.4f}')
     train_accuracy = correct/total
     print(f'Epoch [{epoch+1}/{num_epochs}], Train Accuracy: {train_accuracy:.4f}')
-    valid_accuracy = eval_valid(model, valid_loader, epoch, num_epochs, device)
-    return train_accuracy, valid_accuracy
+    valid_loss, valid_accuracy = eval_valid(model, valid_loader, epoch, num_epochs, device)
+    return train_accuracy, valid_accuracy, valid_loss
 
 def eval_valid(model, valid_loader, epoch, num_epochs, device):
     # Compute model train accuracy on test after all samples have been seen using test samples
@@ -28,6 +28,7 @@ def eval_valid(model, valid_loader, epoch, num_epochs, device):
     with torch.no_grad():
         correct = 0
         total = 0
+        loss = 0
         for inputs, labels, notes in valid_loader:
             # Get images and labels from test loader
             inputs = inputs.transpose(1,2).float().to(device)
@@ -36,16 +37,19 @@ def eval_valid(model, valid_loader, epoch, num_epochs, device):
 
             # Forward pass and predict class using max
             # outputs = model(inputs)
-            _, predicted = predict(model, inputs, notes, device) #torch.max(outputs.data, 1)
+            outputs, predicted = predict(model, inputs, notes, device) #torch.max(outputs.data, 1)
+            loss += torch.nn.functional.binary_cross_entropy_with_logits(outputs, labels)
+            
 
             # Check if predicted class matches label and count numbler of correct predictions
             total += labels.size(0)
+            #TODO: change acc criteria
             correct += torch.nn.functional.cosine_similarity(labels,predicted).sum().item() # (predicted == labels).sum().item()
 
     # Compute final accuracy and display
     valid_accuracy = correct/total
     print(f'Epoch [{epoch+1}/{num_epochs}], Validation Accuracy: {valid_accuracy:.4f}')
-    return valid_accuracy
+    return loss, valid_accuracy
 
 
 def eval_test(model, test_loader, device):
@@ -66,6 +70,7 @@ def eval_test(model, test_loader, device):
 
             # Check if predicted class matches label and count numbler of correct predictions
             total += labels.size(0)
+            #TODO: change acc criteria
             correct += torch.nn.functional.cosine_similarity(labels,predicted).sum().item() # (predicted == labels).sum().item()
 
     # Compute final accuracy and display

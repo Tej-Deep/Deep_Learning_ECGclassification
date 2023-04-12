@@ -1,7 +1,7 @@
 import torch
 from preprocess.preprocess import load_dataset, compute_label_agg, select_data, get_data_loaders
-from models.transformer import MVMNet_Transformer, Classifier_CNN
-# from models.transformer2 import Transformer
+# from models.transformer import MVMNet_Transformer, Classifier_CNN
+from models.transformer2 import Transformer
 from utils.trainer import trainer
 from torchinfo import summary
 
@@ -9,11 +9,14 @@ from torchinfo import summary
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print(device)
 
-BATCH_SIZE = 16
+BATCH_SIZE = 1
 
 
-model = MVMNet_Transformer(d_model=120, vocab_size=250, num_layers=6, heads=12).to(device)
+model = Transformer(d_model=120, vocab_size=250, num_layers=6, heads=12).to(device)
+checkpoint = torch.load('./ckpt_mid/np_Transformer_epoch_7_lr_0.0003.pt')
+model.load_state_dict(checkpoint)
 # model = Classifier_CNN().to(device)
+model.to(device)
 print(model)
 # summary(model, input_size=(BATCH_SIZE, 12, 250))
 
@@ -28,8 +31,9 @@ data, labels, Y = select_data(data, labels)
 train_loader, valid_loader, test_loader = get_data_loaders(data, labels, Y, BATCH_SIZE)
 
 lr = 0.0003
-epochs = 3
+start_epoch = 7
+epochs = 0
 
 train_accs, valid_accs, test_acc = trainer(model, train_loader, test_loader, valid_loader, num_epochs = epochs, lr = lr, eval_interval=100)
 
-torch.save(model.state_dict(), f'./ckpt/{model.name}_epoch_{epochs}_lr_{lr}_test_acc_{test_acc:.4f}.pt')
+torch.save(model.state_dict(), f'./ckpt/{model.name}_epoch_{epochs+start_epoch}_lr_{lr}_test_acc_{test_acc:.4f}.pt')
