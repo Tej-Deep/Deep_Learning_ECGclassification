@@ -2,6 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 from tqdm.autonotebook import tqdm
 import pywt
+import os
 
 
 def display_eval(epoch, epochs, tlength, global_step, tcorrect, tsamples, t_valid_samples, average_train_loss, average_valid_loss, total_acc_val):
@@ -28,7 +29,8 @@ def save_metrics(train_loss_list, valid_loss_list, global_steps_list, path='metr
                 }, path)
 
 
-def plot_losses(path='metrics.pt'):
+def plot_losses(metrics_save_name='metrics', save_dir='./'):
+    path = f'{save_dir}{metrics_save_name}.pt'
     state = torch.load(path)
 
     train_loss_list = state['train_loss_list']
@@ -43,7 +45,7 @@ def plot_losses(path='metrics.pt'):
     plt.show()
 
 
-def train_RNN(epochs, train_loader, valid_loader, model, loss_fn, optimizer, eval_every=0.25, best_valid_loss=float("Inf"), device='cuda'):
+def train_RNN(epochs, train_loader, valid_loader, model, loss_fn, optimizer, eval_every=0.25, best_valid_loss=float("Inf"), device='cuda', model_save_name='', save_dir='./'):
     model.train()
 
     running_loss = 0.0
@@ -130,11 +132,13 @@ def train_RNN(epochs, train_loader, valid_loader, model, loss_fn, optimizer, eva
 
                 if best_valid_loss > average_valid_loss:
                     best_valid_loss = average_valid_loss
-                    save_model(model, optimizer, best_valid_loss, epoch)
+                    save_model(model, optimizer, best_valid_loss, epoch,
+                               path=f'{save_dir}model_{model_save_name}.pt')
                     save_metrics(train_loss_list, valid_loss_list,
-                                 global_steps_list)
+                                 global_steps_list, path=f'{save_dir}metrics_{model_save_name}.pt')
 
-    save_metrics(train_loss_list, valid_loss_list, global_steps_list)
+    save_metrics(train_loss_list, valid_loss_list, global_steps_list,
+                 path=f'{save_dir}metrics_{model_save_name}.pt')
     print("Training complete.")
     return model
 
@@ -167,4 +171,16 @@ def evaluate_RNN(model, test_loader, device="cuda"):
             total_acc_test += sum(1 for s,
                                   i in enumerate(indices) if labels[s][i] == 1)
 
-    print(f'Test Accuracy: {total_acc_test / len(test_loader.dataset): .3f}')
+    test_accuracy = total_acc_test / len(test_loader.dataset)
+    print(f'Test Accuracy: {test_accuracy: .3f}')
+
+    return test_accuracy
+
+def rename_with_acc(save_name, save_dir, acc):
+    acc = round(acc*100)
+    # Rename model
+    os.rename(f'{save_dir}model_{save_name}.pt', f'{save_dir}model_{save_name}_acc_{acc}.pt')
+    # Rename metrics
+    os.rename(f'{save_dir}metrics_{save_name}.pt', f'{save_dir}metrics_{save_name}_acc_{acc}.pt')
+    
+    
