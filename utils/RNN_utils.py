@@ -179,11 +179,12 @@ def evaluate_RNN(model, test_loader, device="cuda"):
 
     return test_accuracy
 
+
 def rename_with_acc(save_name, save_dir, acc):
     acc = round(acc*100)
     # Rename model
-    os.rename(f'{save_dir}model_{save_name}.pt', f'{save_dir}model_{save_name}_acc_{acc}.pt')
+    os.rename(f'{save_dir}model_{save_name}.pt',
+              f'{save_dir}model_{save_name}_acc_{acc}.pt')
     # Rename metrics
-    os.rename(f'{save_dir}metrics_{save_name}.pt', f'{save_dir}metrics_{save_name}_acc_{acc}.pt')
-    
-    
+    os.rename(f'{save_dir}metrics_{save_name}.pt',
+              f'{save_dir}metrics_{save_name}_acc_{acc}.pt')
