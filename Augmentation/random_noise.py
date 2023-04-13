@@ -31,34 +31,33 @@ def visualize_noising(batch_size, inputs, noised, zoom=-1):
         inputs (torch.Tensor): Original ECGs 
         noised (torch.Tensor): Noised ECGs 
         zoom (int, optional): Zoomed in view. Defaults to -1.
+        idx (int, optional): Index of the sample to visualize. Defaults to -1.
     """
     idx = random.randint(0, batch_size)
     sample = inputs[idx:idx+1, :, 1]
-    print(sample.shape)
     sq = sample.flatten()
     plt.plot(sq)
-    plt.title("Original signal")
+    plt.title("Original ECG")
     plt.show()
 
     noised_sample = noised[idx:idx+1, :, 1]
     ns = noised_sample.flatten()
     plt.plot(ns)
-    plt.title("Noised signal")
+    plt.title("Noised ECG")
     plt.show()
-    
+
     if zoom > 0:
-        
+
         sample = inputs[idx:idx+1, :zoom, 1]
-        print(sample.shape)
         sq = sample.flatten()
         plt.plot(sq)
-        plt.title("Original signal (zoomed in)")
+        plt.title("Original ECG (zoomed in)")
         plt.show()
 
         noised_sample = noised[idx:idx+1, :zoom, 1]
         ns = noised_sample.flatten()
         plt.plot(ns)
-        plt.title("Noised signal (zoomed in)")
+        plt.title("Noised ECG (zoomed in)")
         plt.show()
 
 
@@ -92,7 +91,8 @@ def generate_samples_noising(train_loader, batch_size, visualize=False, zoom=-1,
             samples_generated += len(outputs)
 
             if visualize:
-                visualize_noising(batch_size, inputs, noised, zoom)
+                visualize_noising(batch_size, inputs,
+                                  noised, zoom)
 
             generated_X.extend(noised)
             generated_Y.extend(outputs)

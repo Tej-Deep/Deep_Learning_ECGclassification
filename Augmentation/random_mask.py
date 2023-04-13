@@ -62,6 +62,7 @@ def visualize_masking(modified_batches, masks, inputs, outputs):
         masks (list[list[tuple]]): List of list of ranges of masked indices
         inputs (list[list[list]]): Inputs given in batch x sample x lead
         outputs (list[list[list]]): Inputs given in batch x sample x lead
+        idx (int, optional): Index of the batch to visualize. Defaults to -1 (random).
     """
     i = choice(range(len(modified_batches)))
     idx = modified_batches[i]
