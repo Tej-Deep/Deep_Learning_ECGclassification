@@ -77,6 +77,25 @@ def sample_class(data, labels, Y, cls='HYP'):
     return data[mask], labels[mask], Y[mask]
 
 
+def no_to_augment(df, cls):
+    """Min and max difference between cls and other classes. 
+
+    Args:
+        df (Dataframe): Dataframe of labels
+        cls (str): Class to augment
+    """
+
+    counts = df['superdiagnostic'].apply(lambda x: Counter(x))
+    c = sum(counts, Counter())
+    differences = [abs(c[cls] - c[k]) for k in c.keys() if k != cls]
+
+    # find the maximum and minimum differences
+    max_diff = max(differences)
+    min_diff = min(differences)
+
+    return max_diff, min_diff
+
+
 def undersample(data, df, Y, cls='NORM'):
     """Attempts to undersample the class cls to match the number of samples in the second most common class.
     Only removes samples that belong solely to the class cls.
@@ -90,9 +109,9 @@ def undersample(data, df, Y, cls='NORM'):
     total_counts = sum(counts, Counter())
     keep = total_counts.most_common(2)[-1][1]
 
-    df['is_cls'] = df['superdiagnostic'].apply(lambda x: cls in x)
-    df['is_only_cls'] = df['superdiagnostic'].apply(
-        lambda x: cls == x[0] and len(x) == 1)
+    df.loc[df['superdiagnostic'].apply(lambda x: cls in x), 'is_cls'] = True
+    df.loc[df['superdiagnostic'].apply(
+        lambda x: cls == x[0] and len(x) == 1), 'is_only_cls'] = True
     norm_counts = df['is_cls'].value_counts()
     undersample_count = norm_counts - keep
 
