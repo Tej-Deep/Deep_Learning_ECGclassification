@@ -105,12 +105,14 @@ def undersample(data, df, Y, cls='NORM'):
     Args:
         cls (str, optional): Class to undersample. Defaults to 'NORM'.
     """
+    df = df.copy()
     counts = df['superdiagnostic'].apply(lambda x: Counter(x))
     total_counts = sum(counts, Counter())
     keep = total_counts.most_common(2)[-1][1]
 
-    df.loc[df['superdiagnostic'].apply(lambda x: cls in x), 'is_cls'] = True
-    df.loc[df['superdiagnostic'].apply(
+    df.loc[df.loc[:, 'superdiagnostic'].apply(
+        lambda x: cls in x), 'is_cls'] = True
+    df.loc[df.loc[:, 'superdiagnostic'].apply(
         lambda x: cls == x[0] and len(x) == 1), 'is_only_cls'] = True
     norm_counts = df['is_cls'].value_counts()
     undersample_count = norm_counts - keep
