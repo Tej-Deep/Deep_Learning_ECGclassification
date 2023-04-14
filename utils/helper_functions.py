@@ -28,7 +28,7 @@ def eval_valid(model, valid_loader, epoch, num_epochs, device):
     with torch.no_grad():
         correct = 0
         total = 0
-        loss = 0
+        running_loss = 0
         for inputs, labels, notes in valid_loader:
             # Get images and labels from test loader
             inputs = inputs.transpose(1,2).float().to(device)
@@ -38,18 +38,22 @@ def eval_valid(model, valid_loader, epoch, num_epochs, device):
             # Forward pass and predict class using max
             # outputs = model(inputs)
             outputs, predicted = predict(model, inputs, notes, device) #torch.max(outputs.data, 1)
-            loss += torch.nn.functional.binary_cross_entropy_with_logits(outputs, labels)
-            
+            loss = torch.nn.functional.binary_cross_entropy_with_logits(outputs, labels)
+            running_loss += loss.item()*len(labels)
 
             # Check if predicted class matches label and count numbler of correct predictions
             total += labels.size(0)
             #TODO: change acc criteria
-            correct += torch.nn.functional.cosine_similarity(labels,predicted).sum().item() # (predicted == labels).sum().item()
-
+            # correct += torch.nn.functional.cosine_similarity(labels,predicted).sum().item() # (predicted == labels).sum().item()
+            values, indices = torch.max(outputs,dim=1)
+            correct += sum(1 for s, i in enumerate(indices)
+                             if labels[s][i] == 1)
+            
     # Compute final accuracy and display
     valid_accuracy = correct/total
-    print(f'Epoch [{epoch+1}/{num_epochs}], Validation Accuracy: {valid_accuracy:.4f}')
-    return loss, valid_accuracy
+    validation_loss = running_loss/total
+    print(f'Epoch [{epoch+1}/{num_epochs}], Validation Accuracy: {valid_accuracy:.4f}, Validation Loss: {validation_loss:.4f}')
+    return validation_loss, valid_accuracy
 
 
 def eval_test(model, test_loader, device):
@@ -66,12 +70,15 @@ def eval_test(model, test_loader, device):
 
             # Forward pass and predict class using max
             # outputs = model(inputs)
-            _, predicted = predict(model, inputs, notes, device)#torch.max(outputs.data, 1)
+            outputs, predicted = predict(model, inputs, notes, device)#torch.max(outputs.data, 1)
 
             # Check if predicted class matches label and count numbler of correct predictions
             total += labels.size(0)
             #TODO: change acc criteria
-            correct += torch.nn.functional.cosine_similarity(labels,predicted).sum().item() # (predicted == labels).sum().item()
+            # correct += torch.nn.functional.cosine_similarity(labels,predicted).sum().item() # (predicted == labels).sum().item()
+            values, indices = torch.max(outputs,dim=1)
+            correct += sum(1 for s, i in enumerate(indices)
+                             if labels[s][i] == 1)
 
     # Compute final accuracy and display
     test_accuracy = correct/total
