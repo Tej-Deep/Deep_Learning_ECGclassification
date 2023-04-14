@@ -38,7 +38,7 @@ def ecg_random_mask(signal, probablities=[0.3, 0.15], mask_width=[0.08, 0.18], m
     masks = []
     for b_idx in batch_indices:
         indices = np.array(generate_indices(
-            sig_mask_prob, length-mask_width[1]))
+            sig_mask_prob, length-mask_width[1]), ndmin=1)
         mask_list = []
         indices += mask_width[1]//2
 
