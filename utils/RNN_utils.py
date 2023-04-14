@@ -58,11 +58,11 @@ def train_RNN(epochs, train_loader, valid_loader, model, loss_fn, optimizer, eva
     wavelet = 'db4'
     level = 3
 
-    for epoch in range(epochs):
+    for epoch in tqdm(range(epochs)):
         running_loss = 0.0
         t_correct = 0
         t_samples = 0
-        for images, labels, notes in tqdm(train_loader):
+        for images, labels, notes in train_loader:
             optimizer.zero_grad()
 
             coeffs = pywt.wavedec(images, wavelet, level=level, axis=1)
@@ -183,6 +183,14 @@ def evaluate_RNN(model, test_loader, device="cuda"):
 def rename_with_acc(save_name, save_dir, acc):
     acc = round(acc*100)
     # Rename model
+    new_model_name = f'{save_dir}model_{save_name}_acc_{acc}.pt'
+    new_metrics_name = f'{save_dir}metrics_{save_name}_acc_{acc}.pt'
+
+    if os.path.isfile(new_model_name):
+        os.remove(new_model_name)
+    if os.path.isfile(new_metrics_name):
+        os.remove(new_metrics_name)
+
     os.rename(f'{save_dir}model_{save_name}.pt',
               f'{save_dir}model_{save_name}_acc_{acc}.pt')
     # Rename metrics
