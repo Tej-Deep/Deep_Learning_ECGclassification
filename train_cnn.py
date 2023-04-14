@@ -30,7 +30,8 @@ for model_class in models:
     lr = 0.0001
     epochs = 100
 
-    train_accs, valid_accs, test_acc = trainer(model, train_loader, test_loader, valid_loader, lr = lr, num_epochs = epochs)
+    #EDIT TRAINER code
+    # train_accs, valid_accs, test_acc = trainer(model, train_loader, test_loader, valid_loader, lr = lr, num_epochs = epochs)
     # test_accuracies[model.name] = test_acc
     torch.save(model.state_dict(), f'./ckpt_use_best/{model.name}_epoch_{epochs}_best_lr_{lr}_test_acc_{test_acc:.4f}.pt')
 
