@@ -62,6 +62,7 @@ def visualize_masking(modified_batches, masks, inputs, outputs):
         masks (list[list[tuple]]): List of list of ranges of masked indices
         inputs (list[list[list]]): Inputs given in batch x sample x lead
         outputs (list[list[list]]): Inputs given in batch x sample x lead
+        idx (int, optional): Index of the batch to visualize. Defaults to -1 (random).
     """
     i = choice(range(len(modified_batches)))
     idx = modified_batches[i]
@@ -98,7 +99,6 @@ def generate_samples_rm(train_loader, visualize=False, min_samples=0, max_sample
             outputs = outputs.permute(0, 2, 1)
             samples_generated += len(modified_batches)
             if visualize:
-                print("here")
                 visualize_masking(modified_batches, masks, inputs, outputs)
 
             # Add augmented samples
