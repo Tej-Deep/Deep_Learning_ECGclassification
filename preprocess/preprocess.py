@@ -146,9 +146,9 @@ def get_data_loaders(data, labels, Y, batch_size: int, ratio: list[float] = [0.8
     df_test = labels[labels.strat_fold == 10]
     test = PTBDataset(X_test, df_test, y_test)
 
-    train_loader = DataLoader(dataset=train, batch_size=batch_size, shuffle=True)
-    valid_loader = DataLoader(dataset=val, batch_size=batch_size)
-    test_loader = DataLoader(dataset=test, batch_size=batch_size)
+    train_loader = DataLoader(dataset=train, batch_size=batch_size, shuffle = True)
+    valid_loader = DataLoader(dataset=val, batch_size=batch_size, shuffle = True)
+    test_loader = DataLoader(dataset=test, batch_size=batch_size, shuffle = True)
 
     return train_loader, valid_loader, test_loader
 

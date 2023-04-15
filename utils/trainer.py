@@ -48,6 +48,8 @@ def trainer(model, train_loader, test_loader, valid_loader, num_epochs = 10, lr 
     train_loss_list = []
     valid_loss_list = [] 
     global_steps_list = []
+    best_valid_loss = float("inf") 
+
     
     # Define optimizer
     optimizer = define_optimizer(model, lr, alpha)
@@ -59,7 +61,6 @@ def trainer(model, train_loader, test_loader, valid_loader, num_epochs = 10, lr 
         running_loss = 0
         correct = 0
         total = 0
-        best_valid_loss = float("inf") 
         for i, (inputs, labels, notes) in enumerate(train_loader):
             # Get from dataloader and send to device
             inputs = inputs.transpose(1,2).float().to(device)
