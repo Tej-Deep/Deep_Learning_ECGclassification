@@ -106,6 +106,7 @@ def generate_samples_noising(train_loader, batch_size, visualize=False, zoom=-1,
         generated_Y = generated_Y[:max_samples]
         generated_notes = generated_notes[:max_samples]
 
-    dl = AugmentedDataset(generated_X, generated_Y, generated_notes)
+
+    dl = AugmentedDataset(torch.stack(generated_X), torch.stack(generated_Y), torch.stack(generated_notes))
 
     return dl

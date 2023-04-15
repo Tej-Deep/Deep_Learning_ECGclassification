@@ -115,6 +115,6 @@ def generate_samples_rm(train_loader, visualize=False, min_samples=0, max_sample
         generated_Y = generated_Y[:max_samples]
         generated_notes = generated_notes[:max_samples]
 
-    dl = AugmentedDataset(generated_X, generated_Y, generated_notes)
+    dl = AugmentedDataset(torch.stack(generated_X), torch.stack(generated_Y), torch.stack(generated_notes))
 
     return dl
