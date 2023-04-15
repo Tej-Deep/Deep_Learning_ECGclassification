@@ -123,7 +123,7 @@ def undersample(data, df, Y, cls='NORM'):
     return data[mask], df[mask], Y[mask]
 
 
-def get_data_loaders(data, labels, Y, batch_size: int, ratio: list[float] = [0.8, 0.1, 0.1]):
+def get_data_loaders(data, labels, Y, batch_size: int, ratio: list[float] = [0.8, 0.1, 0.1], shuffle_data = True):
     """
     Get train, validation and test DataLoaders
 
@@ -146,9 +146,9 @@ def get_data_loaders(data, labels, Y, batch_size: int, ratio: list[float] = [0.8
     df_test = labels[labels.strat_fold == 10]
     test = PTBDataset(X_test, df_test, y_test)
 
-    train_loader = DataLoader(dataset=train, batch_size=batch_size, shuffle = True)
-    valid_loader = DataLoader(dataset=val, batch_size=batch_size, shuffle = True)
-    test_loader = DataLoader(dataset=test, batch_size=batch_size, shuffle = True)
+    train_loader = DataLoader(dataset=train, batch_size=batch_size, shuffle = shuffle_data)
+    valid_loader = DataLoader(dataset=val, batch_size=batch_size, shuffle = shuffle_data)
+    test_loader = DataLoader(dataset=test, batch_size=batch_size, shuffle = shuffle_data)
 
     return train_loader, valid_loader, test_loader
 

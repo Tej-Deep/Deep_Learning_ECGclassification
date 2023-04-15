@@ -8,12 +8,12 @@ class Conv1d_layer(nn.Module):
     def __init__(self, in_channel, out_channel, kernel_size) -> None:
         super().__init__()
         self.conv = nn.Conv1d(in_channels=in_channel, out_channels=out_channel, kernel_size=kernel_size)
-        # self.batch_norm = torch.nn.BatchNorm1d(out_channel)
+        self.batch_norm = torch.nn.BatchNorm1d(out_channel)
         self.dropout = nn.Dropout1d(p=0.5)
 
     def forward(self, x):
         x= self.conv(x)
-        # x = self.batch_norm(x)
+        x = self.batch_norm(x)
         x = self.dropout(x)
         return x
 
@@ -207,7 +207,7 @@ class MMCNN_SUM_ATT(nn.Module):
         return x
 
 if __name__ == "__main__":
-    # model = CNN()
-    model = Conv1d_layer(12, 16, 7)
-    summary(model, input_size = (256, 12, 1000))
+    model = MMCNN_CAT()
+    # model = Conv1d_layer(12, 16, 7)
+    summary(model) #, input_size = (256, 12, 1000))
     
