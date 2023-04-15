@@ -1,6 +1,21 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchinfo import summary
+
+# Not in use yet
+class Conv1d_layer(nn.Module):
+    def __init__(self, in_channel, out_channel, kernel_size) -> None:
+        super().__init__()
+        self.conv = nn.Conv1d(in_channels=in_channel, out_channels=out_channel, kernel_size=kernel_size)
+        # self.batch_norm = torch.nn.BatchNorm1d(out_channel)
+        self.dropout = nn.Dropout1d(p=0.5)
+
+    def forward(self, x):
+        x= self.conv(x)
+        # x = self.batch_norm(x)
+        x = self.dropout(x)
+        return x
 
 class CNN(nn.Module):
     def __init__(self, ecg_channels=12):
@@ -16,7 +31,7 @@ class CNN(nn.Module):
         self.fc1 = nn.Linear(512, 128)
         self.fc2 = nn.Linear(128, 5)
         self.activation = nn.ReLU()
-    def forward(self, x, notes):
+    def forward(self, x, notes=None):
         x = self.pool1(self.activation(self.conv1(x)))
         x = self.pool2(self.activation(self.conv2(x)))
         x = self.pool3(self.activation(self.conv3(x)))
@@ -33,11 +48,11 @@ class MMCNN_SUM(nn.Module):
         super(MMCNN_SUM, self).__init__()
         # ECG processing Layers
         self.name = "MMCNN_SUM"
-        self.conv1 = nn.Conv1d(ecg_channels, 16, 7)
+        self.conv1 = Conv1d_layer(ecg_channels, 16, 7)
         self.pool1 = nn.MaxPool1d(2, 2)
-        self.conv2 = nn.Conv1d(16, 32, 5)
+        self.conv2 = Conv1d_layer(16, 32, 5)
         self.pool2 = nn.MaxPool1d(2, 2)
-        self.conv3 = nn.Conv1d(32, 48, 3)
+        self.conv3 = Conv1d_layer(32, 48, 3)
         self.pool3 = nn.MaxPool1d(2, 2)
         self.fc0 = nn.Linear(5856, 512)
         self.fc1 = nn.Linear(512, 128)
@@ -192,5 +207,7 @@ class MMCNN_SUM_ATT(nn.Module):
         return x
 
 if __name__ == "__main__":
-    model = MMCNN_ATT()
+    # model = CNN()
+    model = Conv1d_layer(12, 16, 7)
+    summary(model, input_size = (256, 12, 1000))
     
