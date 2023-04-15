@@ -38,7 +38,7 @@ def ecg_random_mask(signal, probablities=[0.3, 0.15], mask_width=[0.08, 0.18], m
     masks = []
     for b_idx in batch_indices:
         indices = np.array(generate_indices(
-            sig_mask_prob, length-mask_width[1]))
+            sig_mask_prob, length-mask_width[1]), ndmin=1)
         mask_list = []
         indices += mask_width[1]//2
 
@@ -94,16 +94,16 @@ def generate_samples_rm(train_loader, visualize=False, min_samples=0, max_sample
         for batch in train_loader:
             inputs, outputs, text = batch
             # inputs are given in batch, sample, lead
-            outputs, modified_batches, masks = ecg_random_mask(
+            masked, modified_batches, masks = ecg_random_mask(
                 inputs.permute(0, 2, 1))
-            outputs = outputs.permute(0, 2, 1)
+            masked = masked.permute(0, 2, 1)
             samples_generated += len(modified_batches)
             if visualize:
                 visualize_masking(modified_batches, masks, inputs, outputs)
 
             # Add augmented samples
             for i in modified_batches:
-                generated_X.append(inputs[i])
+                generated_X.append(masked[i])
                 generated_Y.append(outputs[i])
                 generated_notes.append(text[i])
 
