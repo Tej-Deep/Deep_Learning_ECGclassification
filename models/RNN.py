@@ -56,6 +56,7 @@ class MMRNN(nn.ModuleList):
         h = h.to(self.device)
         c = c.to(self.device)
         x = x.to(self.device)
+        note = note.to(self.device)
 
         output, _ = self.lstm(x, (h, c))
         # Take last hidden state
