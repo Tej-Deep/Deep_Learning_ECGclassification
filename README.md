@@ -14,7 +14,7 @@ The PTB-XL dataset is a publicly available dataset of electrocardiogram (ECG) si
 
 The use of this dataset makes the objective of this project a multi-label, multi-class classification problem because each ECG recording can have multiple labels corresponding to different cardiac abnormalities, and each label corresponds to a specific class. 
 
-The Data set can be downloaded from [here](https://physionet.org/content/ptb-xl/1.0.3/). TO run the training notebooks, download the the dataset and place it under the data folder. YOu also need to unzip the embeddings folder in data to get the embeddings we genereated from the Clinical Notes. The data directory should be simlilar to this after all these actions:
+The Data set can be downloaded from [here](https://physionet.org/content/ptb-xl/1.0.3/). To run the training notebooks, download the the dataset and place it under the data folder. YOu also need to unzip the embeddings folder in data to get the embeddings we genereated from the Clinical Notes. The data directory should be simlilar to this after all these actions:
 
 ```
 - data
@@ -50,6 +50,7 @@ The results of our experiments and the pretrained  checkpoints can be found [her
 We have also uploaded .pt files containing the dataloaders so it is alternatively possible to load these .pt files instead of rereading the ECG signal files. To use these dataloader, make sure that the .pt files are in the main directory and set `LOAD_DATASET` to `True` in the notebooks when running and ensure that the `TRAIN_PATH, VALID_PATH,
 TEST_PATH` have been set to the correct path.
 
+### Visualisation
 The .pt files for Metrics contain the training and validation loss over the training period. They can be used to generate a plot by passing the path to the metrics file as an input to the `plot_losses` function in utils/RNN_utils. The below shows how the function can be used.
 
 ```
@@ -62,3 +63,20 @@ Alternatively, you can plot any metrics save file by using our python script `pl
 ```
 python plot_losses.py <metrics file path>
 ```
+
+## Demo
+Before Running the Demo, we first need to edit some variables in the Demo.py file.
+
+```
+CWD = "C:/Users/ptejd/Documents/Deep_Learning/Deep_Learning_ECGclassification"
+#CKPT paths
+MMCNN_CAT_ckpt_path = "./demo_data/model_MMCNN_CAT_epoch_30_acc_84.pt"
+MMRNN_ckpt_path = "./demo_data/model_MMRNN_undersampled_augmented_rn_epoch_20_acc_84.pt"
+```
+Replace the CWD with the path to the project directory and replace the path to the CNN and RNN checkpoint files.
+
+After setting up the paths, Run the following command to launch the Gradio Demo
+```
+python demo.py
+```
+Open the link shown in the terminal in a web browser. You can then pass in the inputs of .hea and .dat files into the input UI components and type out the clinical notes in the textbox given. Then, once the inference is completed, the webpage should display the independent probabillities of each class of Cardiac Abnormalities and also generate a visualisation of the ECG Signal provided. 

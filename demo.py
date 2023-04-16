@@ -18,6 +18,12 @@ import matplotlib.pyplot as plt
 from transformers import AutoTokenizer, AutoModel
 from langdetect import detect
 
+# edit this before Running
+CWD = "C:/Users/ptejd/Documents/Deep_Learning/Deep_Learning_ECGclassification"
+#CKPT paths
+MMCNN_CAT_ckpt_path = "./demo_data/model_MMCNN_CAT_epoch_30_acc_84.pt"
+MMRNN_ckpt_path = "./demo_data/model_MMRNN_undersampled_augmented_rn_epoch_20_acc_84.pt"
+
 # Define clinical models and tokenizers
 en_clin_bert = 'emilyalsentzer/Bio_ClinicalBERT'
 ger_clin_bert = 'smanjil/German-MedBERT'
@@ -55,13 +61,13 @@ def infer(model,data, notes):
     data= torch.tensor(data)
     if model == "CNN":
         model = MMCNN_CAT()
-        checkpoint = torch.load("./model_saves/model_MMCNN_CAT_epoch_30_acc_84.pt")
+        checkpoint = torch.load(MMCNN_CAT_ckpt_path)
         model.load_state_dict(checkpoint['model_state_dict'])
         data = data.transpose(1,2).float()
 
     elif model == "RNN":
         model = MMRNN(device='cpu')
-        model.load_state_dict(torch.load("./demo_data/model_MMRNN_undersampled_augmented_rn_epoch_20_acc_84.pt")['model_state_dict'])
+        model.load_state_dict(torch.load(MMRNN_ckpt_path)['model_state_dict'])
         data = data.float()
     model.eval()
     outputs, predicted = predict(model, data, embed_notes, device='cpu')
@@ -69,7 +75,7 @@ def infer(model,data, notes):
     return {'CD':round(outputs[0].item(),2), 'HYP':round(outputs[1].item(),2), 'MI':round(outputs[2].item(),2), 'NORM':round(outputs[3].item(),2), 'STTC':round(outputs[4].item(),2)}
 
 def run(model_name, header_file, data_file, notes):
-    demo_dir = "C:/Users/ptejd/Documents/Deep_Learning/Deep_Learning_ECGclassification/demo_data"
+    demo_dir = f"{CWD}/demo_data"
     hdr_dirname, hdr_basename = os.path.split(header_file.name)
     data_dirname, data_basename = os.path.split(data_file.name)
     shutil.copyfile(data_file.name, f"{demo_dir}/{data_basename}")
@@ -97,7 +103,7 @@ with gr.Blocks() as demo:
         predict_btn = gr.Button("Predict Class")
         predict_btn.click(fn= run, inputs = [model, header_file, data_file, notes], outputs=[output_prob, ecg_graph])
     with gr.Row():    
-        gr.Examples(examples=[["C:/Users/ptejd/Documents/Deep_Learning/Deep_Learning_ECGclassification/data/test/00001_lr.hea", "C:/Users/ptejd/Documents/Deep_Learning/Deep_Learning_ECGclassification/data/test/00001_lr.dat", "sinusrhythmus periphere niederspannung"]],
+        gr.Examples(examples=[[f"{CWD}/demo_data/test/00001_lr.hea", f"{CWD}/demo_data/test/00001_lr.dat", "sinusrhythmus periphere niederspannung"]],
                     inputs = [header_file, data_file, notes])
 
 if __name__ == "__main__":
