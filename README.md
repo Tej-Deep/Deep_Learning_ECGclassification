@@ -50,9 +50,15 @@ The results of our experiments and the pretrained  checkpoints can be found [her
 We have also uploaded .pt files containing the dataloaders so it is alternatively possible to load these .pt files instead of rereading the ECG signal files. To use these dataloader, make sure that the .pt files are in the main directory and set `LOAD_DATASET` to `True` in the notebooks when running and ensure that the `TRAIN_PATH, VALID_PATH,
 TEST_PATH` have been set to the correct path.
 
-The .pt files for Metrics contain the training and validation loss over the training period. They can be usedd to generate a plot by passing the path to the metrics file as an input to the `plot_losses` function in utils/RNN_utils. The below shows how the function can be used.
+The .pt files for Metrics contain the training and validation loss over the training period. They can be used to generate a plot by passing the path to the metrics file as an input to the `plot_losses` function in utils/RNN_utils. The below shows how the function can be used.
 
 ```
 plot_losses(save_dir=*Path to Direcotry of the Metrics file*,
             metrics_save_name=*Metrics file name*)
+```
+
+Alternatively, you can plot any metrics save file by using our python script `plot_losses.py` by providing it the save file path as such:
+
+```
+python plot_losses.py <metrics file path>
 ```
